@@ -1,0 +1,6 @@
+# Node dependencies
+node_modules
+.env
+credentials.json
+japs-page-1730994915246-e47ac50f3c63.json
+config/japs-page-1730994915246-e47ac50f3c63.json
