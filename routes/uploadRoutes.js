@@ -3,8 +3,10 @@ const router = express.Router();
 const multer = require('multer');
 const uploadController = require('../controllers/uploadController');
 
-const upload = multer({ dest: 'uploads/' }); // carpeta temporal
-
+// const upload = multer({ dest: 'uploads/' }); // carpeta temporal
+// 🔹 Almacenamiento en memoria (no crea carpetas)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 router.post('/', upload.single('image'), uploadController.uploadImage);
 
 module.exports = router;
