@@ -22,6 +22,7 @@ app.use('/api/qr', qrRoutes);
 
 sequelize.sync().then(() => {
   console.log('✅ Base de datos sincronizada.');
+  console.log('Versión de Node:', process.version);
 }).catch(err => {
   console.error('❌ Error al conectar base de datos:', err);
 });
