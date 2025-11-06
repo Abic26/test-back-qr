@@ -1,5 +1,5 @@
 const imagekit = require('../services/imagekit');
-const { decodeQrFromBuffer } = require('../services/qrService');
+const fs = require('fs');
 
 exports.uploadImage = async (req, res) => {
   console.log('🟡 [Upload] Petición recibida para subir imagen.');
@@ -13,34 +13,32 @@ exports.uploadImage = async (req, res) => {
       });
     }
 
-    const { originalname, buffer } = req.file;
-    const user = req.body.user || 'Anonimo';
+    console.log(`🟢 [Upload] Archivo recibido: ${req.file.originalname}`);
+    console.log('📦 [Upload] Leyendo archivo temporal...');
 
-    console.log(`🟢 [Upload] Archivo recibido: ${originalname}`);
-    const customFileName = `${user}_${originalname}`;
+    const file = req.file;
+    const user = req.body.user || "Anonimo";
+    const fileBuffer = fs.readFileSync(file.path);
 
     console.log('🚀 [Upload] Subiendo imagen a ImageKit...');
-    const uploaded = await imagekit.upload({
-      file: buffer, // <- no leemos del disco
+    const customFileName = `${user}_${file.originalname}`;
+    console.log(`📝 [Upload] Nombre final del archivo: ${customFileName}`);
+
+    const response = await imagekit.upload({
+      file: fileBuffer,
       fileName: customFileName
     });
 
-    console.log('✅ [Upload] Imagen subida correctamente:', uploaded.url);
+    console.log('✅ [Upload] Imagen subida correctamente a ImageKit.');
+    console.log(`🌐 URL: ${response.url}`);
 
-    // Intentar decodificar QR desde el buffer
-    let qrData = null;
-    try {
-      qrData = await decodeQrFromBuffer(buffer);
-      console.log('🔍 [Upload] Código QR decodificado:', qrData);
-    } catch (err) {
-      console.warn('⚠️ [Upload] No se pudo decodificar QR:', err.message);
-    }
+    fs.unlinkSync(file.path);
+    console.log('🧹 [Upload] Archivo temporal eliminado.');
 
     return res.json({
       success: true,
-      url: uploaded.url,
-      name: uploaded.name,
-      qrData: qrData || null
+      link: response.url,
+      name: response.name
     });
   } catch (err) {
     console.error('❌ [Upload] Error al subir imagen:', err);
