@@ -10,22 +10,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// guardar las imagenes en imageKit
+// Rutas
 app.use('/api/upload', uploadRoutes);
-
-// guardar las cadenas en la base de datos
 app.use('/api/strings', stringRoutes);
-
-// app para decodificar qr
 app.use('/api/qr', qrRoutes);
 
+// Sincronizar la base de datos
+sequelize.sync()
+  .then(() => {
+    console.log('✅ Base de datos sincronizada.');
+    console.log('Versión de Node:', process.version);
+  })
+  .catch(err => {
+    console.error('❌ Error al conectar base de datos:', err);
+  });
 
-sequelize.sync().then(() => {
-  console.log('✅ Base de datos sincronizada.');
-  console.log('Versión de Node:', process.version);
-}).catch(err => {
-  console.error('❌ Error al conectar base de datos:', err);
+// Ruta base para verificar
+app.get('/', (req, res) => {
+  res.send('🚀 Backend Express funcionando correctamente en Vercel');
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
+// 👇 Exportar la app para Vercel (no usar app.listen)
+module.exports = app;
